@@ -2,7 +2,7 @@
 * Alkis Antoniades - 4748174
 * Jarei Basabe - 4985567
 * Robert Levenbach - 4250052 
-*
+* Ziyu Bao - 4436113
 
 **Group Name** Five Guys (Not the burger)
 
@@ -16,6 +16,6 @@ Robert: 7>10>8
 Alkis: 10>8>7
 
 Points:
-7: ||||
-8: |||
-10: |||||
+7: |||||||
+8: ||||
+10: |||||||
