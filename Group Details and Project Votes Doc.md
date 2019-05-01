@@ -3,6 +3,7 @@
 * Jarei Basabe - 4985567
 * Robert Levenbach - 4250052 
 * Ziyu Bao - 4436113
+* Kilian Callebaut - 4501160
 
 **Group Name** Five Guys (Not the burger)
 
@@ -18,6 +19,6 @@ Ziyu: 7>10>8
 Kilian: 7>10>8
 
 Points:
-7: |||||||
-8: ||||
-10: |||||||
+7: ||||||||||
+8: |||||
+10: |||||||||
