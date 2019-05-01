@@ -15,6 +15,7 @@ https://github.com/aantoniades565/Crowd_Computing_Group5
 Robert: 7>10>8
 Alkis: 10>8>7
 Ziyu: 7>10>8
+Kilian: 7>10>8
 
 Points:
 7: |||||||
