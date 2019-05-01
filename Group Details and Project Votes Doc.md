@@ -14,6 +14,7 @@ https://github.com/aantoniades565/Crowd_Computing_Group5
 **Preferred Projects**. (3 points for most preferred, 2 for middle, 1 for least preferred) 
 Robert: 7>10>8
 Alkis: 10>8>7
+Ziyu: 7>10>8
 
 Points:
 7: |||||||
