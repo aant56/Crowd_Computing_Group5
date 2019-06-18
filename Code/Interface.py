@@ -3,8 +3,11 @@ from tkinter import *
 import  tkinter.messagebox
 #import weka.core.jvm as jvm
 import joblib
+import functools
+import os
 
-ml_models = ('lasso_for.sav', 'lasso_against.sav', 'lasso_positive.sav', 'linearRegression_negative.sav','lasso_factual.sav', 'lasso_emotional.sav' )
+
+ml_models = ('ridge_for.sav', 'ridge_against.sav', 'ridge_positive.sav', 'linearRegression_negative.sav','ridge_factual.sav', 'ridge_emotional.sav' )
 labels = ('Pro value', 'Contra value', 'Positive sentiment value', 'Negative sentiment value','Evidence-based value', 'Emotion-based value' )
 explanations = {
     'Pro value': """Implies that the text contains statements or arguments supporting the use of vaccinations. They can range from simply advertising places where one can get vaccinations, to openly promoting the benefits of vaccinations.""",
@@ -25,7 +28,6 @@ def input_screen(root):
     b2 = tk.Button(root, text='Quit', command=root.quit)
     b2.pack(side=tk.LEFT, padx=5, pady=5)
 
-
 def make_form(root):
     row = tk.Frame(root)
     lab = tk.Label(row,  text="Input tweet text:", anchor='w')
@@ -40,61 +42,93 @@ def make_form(root):
     text.pack()
     return text
 
+def show(event, ind, info_texts):
+    info_texts[ind].lift()
+
+def hide(event, ind, info_texts):
+    info_texts[ind].lower()
+
+def get_disagree(event, ind, disagree_results):
+    return disagree_results[ind].get()
+
+def retrieve_disagree(disagree_results):
+    dis_list = []
+    for dis in disagree_results:
+        dis_list.append(dis.get())
+        print(dis.get())
+    return dis_list
+
+
 def label_tweets(textBox, root):
+    info_buttons= []
+    info_texts= []
+    disagree_boxes= []
+    disagree_results= []
+
     text = retrieve_input(textBox)
-#    print(text)
-#    loaded_model = joblib.load('ridgeRegressionTweet.sav')
     clear_window(root)
     tweet = tk.Label(root, text=text, font=("Verdana", 11), wraplength=700, relief=RIDGE)
     tweet.pack(side=tk.TOP, fill=tk.X, pady=15)
     text = [text]
-#    print(loaded_model.predict(text))
 
+    scale_expl = tk.Label(root, text="Numbers are on a scale from 1-5")
+    scale_expl.pack()
     for i in range(6):
         label = labels[i]
         ml_model = ml_models[i]
         loaded_model = joblib.load(ml_model)
         # Replace value with actual value
-        value = float(loaded_model.predict(text))
+        value = round(float(loaded_model.predict(text)), 3)
         row = tk.Frame(root)
         txt = tk.Frame(row)
         lab = tk.Label(txt, justify=tk.LEFT,font=("Verdana bold", 10), text=label+": "+str(value))
 
+        info_buttons.append(tk.Label(txt, text="?", relief=RAISED))
+        info_texts.append(tk.Label(root, text=explanations[label], wraplength=400, relief=GROOVE))
+        info_texts[i].place(relx=0.5,rely=0.5,anchor=CENTER)
+        info_texts[i].lower()
 
-
-
-        info_b = tk.Label(txt, text="?", relief=RAISED)
-        info = tk.Label(root, text=explanations[label], wraplength=400, relief=GROOVE)
-
-        info.place(relx=0.5,rely=0.5,anchor=CENTER)
-        info.lower()
-
-        #info = tk.Button(txt, text='?',
-        #           command=(lambda: tk.messagebox.showinfo('Info', explanations[label])))
-        #desc = tk.Label(txt, justify=tk.LEFT,wraplength=500, font=("Verdana", 7), text=explanations[label])
-        scale = tk.Scale(row, from_=0, to=5, orient=HORIZONTAL)
+        scale = tk.Scale(row, from_=1, to=5, orient=HORIZONTAL)
         scale.set(value)
-
+        disagree_results.append(IntVar())
+        disagree_boxes.append(tk.Checkbutton(row, text="Disagree", variable=disagree_results[-1]))
 
         row.pack(side=tk.TOP, fill= tk.X)
         txt.pack(side=tk.LEFT)
         lab.pack(side=tk.LEFT)
-        info_b.pack(side=tk.RIGHT)
-        info_b.bind("<Enter>", lambda e=info: info.lift())
-        info_b.bind("<Leave>", lambda e=info: info.lower())
-        info.bind("<Enter>", lambda e=info: info.lift())
-        info.bind("<Leave>", lambda e=info: info.lower())
-        #info.pack(side=tk.RIGHT, padx=5, pady=5)
-        #desc.pack(side=tk.BOTTOM )
+
+        info_buttons[i].pack(side=tk.RIGHT)
+        info_buttons[i].bind("<Enter>", functools.partial(show, ind=i, info_texts=info_texts))
+        info_buttons[i].bind("<Leave>", functools.partial(hide, ind=i, info_texts=info_texts))
+        info_texts[i].bind("<Enter>", functools.partial(show, ind=i, info_texts=info_texts))
+        info_texts[i].bind("<Leave>", functools.partial(hide, ind=i, info_texts=info_texts))
+
+        disagree_boxes[i].pack(side=tk.RIGHT, fill=tk.X)
         scale.pack(side=tk.RIGHT,fill=tk.X)
-#        print(scale.get())
+
 
     b1 = tk.Button(root, text='Label new tweet',
-           command=(lambda: input_screen(root)))
+           command=(lambda: save_input_screen(root, disagree_results, text)))
     b1.pack(side=tk.LEFT, padx=5, pady=5)
 
     b2 = tk.Button(root, text='Quit', command=root.quit)
     b2.pack(side=tk.LEFT, padx=5, pady=5)
+
+    #b3 = tk.Button(root, text='Disagree', command=(lambda e=disagree_results: retrieve_disagree(e)))
+    #b3.pack(side=tk.LEFT, padx=5, pady=5)
+
+def save_input_screen(root, disagree_results, text):
+    disagreements = retrieve_disagree(disagree_results)
+    filename = "Disagreements.txt"
+    w = "w+"
+    if os.path.exists(filename):
+        w = "a+"
+    f= open(filename, w)
+    line = "Tweet: " + text[0] + " Disagreements: " +str(disagreements)+ "\n"
+    f.write(line)
+    f.close()
+    input_screen(root)
+
 
 
 def retrieve_input(text):
@@ -108,11 +142,9 @@ def clear_window(root):
 
 if __name__ == '__main__':
 #    jvm.start(packages="/Users/baoziyu/wekafiles", max_heap_size="512m")
-
     root = tk.Tk()
     input_screen(root)
-    
     root.title("Tweet Labeler")
     root.mainloop()
-    
+
 #    jvm.stop()
